@@ -211,11 +211,7 @@ fn is_vm_by_wim_temper() -> bool {
 
     drop(connection);
 
-    if results.len() < 2 {
-        return true;
-    }
-
-    false
+    results.len() < 2
 }
 ```
 
@@ -225,10 +221,10 @@ What we learned today: rust is our friend, and you don't code in rust like you c
 
 Here's the full code, which at the end of the series, might also be posted on github:
 ```
-use obfstr::obfstr;
+use obfstr::obfstr; // Added this here because typing it 2 times is tiring
 use std::{collections::HashMap, path::Path, process};
 use sysinfo::System;
-use wmi::{COMLibrary, Variant, WMIConnection}; // Added this here because typing it 2 times is tiring
+use wmi::{COMLibrary, Variant, WMIConnection};
 
 enum Mode {
     #[allow(non_camel_case_types)]
