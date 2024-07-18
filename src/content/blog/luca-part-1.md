@@ -24,13 +24,11 @@ pub fn detect()  {
 Surprisingly, this part is actually pretty good. But instead, I'd let the users select what functions they want. For example (this code was written in 2 minutes):
 
 ```
+#[allow(non_camel_case_types)]
 enum Mode {
-    #[allow(non_camel_case_types)]
     ANTI_SERVER,
-    #[allow(non_camel_case_types)]
     WIM_TEMPER,
-    #[allow(non_camel_case_types)]
-    DETECT_HASH_PROCESSES
+    DETECT_HASH_PROCESSES,
 }
 
 const MODES: &[Mode] = &[ANTI_SERVER, WIM_TEMPER, DETECT_HASH_PROCESSES];
@@ -230,12 +228,10 @@ use std::{collections::HashMap, path::Path, process};
 use sysinfo::System;
 use wmi::{COMLibrary, Variant, WMIConnection};
 
+#[allow(non_camel_case_types)]
 enum Mode {
-    #[allow(non_camel_case_types)]
     ANTI_SERVER,
-    #[allow(non_camel_case_types)]
     WIM_TEMPER,
-    #[allow(non_camel_case_types)]
     DETECT_HASH_PROCESSES,
 }
 
@@ -270,17 +266,17 @@ fn is_server_os() -> bool {
         return false;
     };
 
-    let Ok(results) =
-        connection.raw_query(obfstr!("SELECT ProductType FROM Win32_OperatingSystem"))
-    else {
+    let Ok(results) = connection.raw_query::<HashMap<String, Variant>>(obfstr!(
+        "SELECT ProductType FROM Win32_OperatingSystem"
+    )) else {
         return false;
     };
 
     drop(connection);
 
     for result in results {
-        for value in result.values() {
-            if *value == Variant::UI4(2) || *value == Variant::UI4(3) {
+        for value in result.into_values() {
+            if value == Variant::UI4(2) || value == Variant::UI4(3) {
                 return true;
             }
         }
