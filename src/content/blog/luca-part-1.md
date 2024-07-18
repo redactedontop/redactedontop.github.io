@@ -8,8 +8,11 @@ heroImage: '/blog-image-1.jpg'
 Howdy y'all, this is my first (and probably) last series of blog posts, but I had to type this out, considering how fucking retarded this code is. This post is about the anti-emulation.
 
 ##### Disclaimer: the code provided here shall not be used maliciously, and is for old versions of the crates talked about. I'm also not adding async/await, as I have other things to do and it'd take too much work for my lazy dum dum ADHD brain.
+<br />
 
-Let's start with the detect function:
+### The detect function
+
+We're starting with the detect function:
 ```
 pub fn detect()  {
 	if is_server_os() || is_vm_by_wim_temper() || detect_hash_processes() {
@@ -43,7 +46,8 @@ pub fn is_vm() -> bool {
 And then the  ```process::exit(0)``` goes in main.
 You could probably spend some more time to use function pointers for less friction while coding and/or configuring, but this is just the start, and I'm not spending an hour improving a 5 line function for a silly blog post.
 
-Now let's get into the meat, starting with the server OS detection function.
+### Server OS detection
+Now let's dive into the real deal, starting with the server OS detection function.
 
 ```
 fn is_server_os() -> bool {
@@ -106,7 +110,9 @@ fn is_server_os() -> bool {
 	false
 }
 ```
+</br>
 
+### Hash process detection
 Moving on, let's talk about the hash process detection.
 The code goes like this:
 
@@ -168,7 +174,9 @@ fn detect_hash_processes() -> bool  {
 	false
 }
 ```
+</br>
 
+### Detection by WIM temper
 Finally, I'm tired of writing, and by chance, this file just has one last function:
 
 ```
@@ -217,8 +225,9 @@ fn is_vm_by_wim_temper() -> bool {
 
 What we learned today: rust is our friend, and you don't code in rust like you code in other languages; add more customizability without repetition; for the love of god, don't specify everything in your variable names.
 
-Full code:
+### Full code
 
+Here's the full code, which at the end of the series, might also be posted on github:
 ```
 use obfstr::obfstr;
 use std::{collections::HashMap, path::Path, process};
@@ -326,7 +335,8 @@ fn is_vm_by_wim_temper() -> bool {
 
     false
 }
-
 ```
+
+</br>
 
 I might continue this if I get some traction and/or friends in Session.
