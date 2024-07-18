@@ -189,11 +189,7 @@ fn is_vm_by_wim_temper() -> bool {
 
     drop(wmi_con);
 
-    if results.len() < 2 {
-        return true;
-    }
-
-    false
+    results.len() < 2
 }
 ```
 
@@ -329,11 +325,7 @@ fn is_vm_by_wim_temper() -> bool {
 
     drop(connection);
 
-    if results.len() < 2 {
-        return true;
-    }
-
-    false
+    results.len() < 2
 }
 ```
 
