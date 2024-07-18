@@ -78,7 +78,7 @@ fn is_server_os() -> bool {
 
 Starting with namespace path and hostname, the functions describe themselves, so you don't need to make them a variable. Also, "wmi_con" could be renamed to the better name, "connection". You don't even need match, you can use the let-else syntax, stable since Rust 1.65.
 
-I also dislike the way results was made (unwrap, use let-else once again), but I don't have much experience with that part, so I might leave it alone for the most part. You could also save a character and make the code cleaner by changing the "\\\\ROOT\\\\CIMv2" to r"\ROOT\CIMv2".
+I also dislike the way results was made (unwrap, use let-else once again), but I don't have much experience with that part, so I might leave it alone for the most part. You could also save a character and make the code cleaner by changing the "\\\\ROOT\\\\CIMv2" to r"\ROOT\CIMv2". You can also use into_values to not need to dereference, which in my opinion looks ugly.
 
 My finished product is this:
 ```
@@ -91,15 +91,15 @@ fn is_server_os() -> bool {
         return false;
     };
 
-    let Ok(results) = connection.raw_query(obfstr::obfstr!("SELECT ProductType FROM Win32_OperatingSystem")) else {
+    let Ok(results) = connection.raw_query::<HashMap<String, Variant>>(obfstr::obfstr!("SELECT ProductType FROM Win32_OperatingSystem")) else {
         return false;
     };
 
     drop(connection);
 
     for result in results {
-        for value in result.values()  {
-            if *value == Variant::UI4(2) || *value == Variant::UI4(3) {
+        for value in result.into_values()  {
+            if value == Variant::UI4(2) || value == Variant::UI4(3) {
                 return true;
             }
         }
