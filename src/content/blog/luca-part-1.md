@@ -12,7 +12,7 @@ Howdy y'all, this is my first (and probably) last series of blog posts, but I ha
 
 ### The detect function
 
-We're starting with the detect function:
+We're starting with their detect function:
 ```
 pub fn detect()  {
     if is_server_os() || is_vm_by_wim_temper() || detect_hash_processes() {
@@ -47,7 +47,7 @@ And then the  ```process::exit(0)``` goes in main.
 You could probably spend some more time to use function pointers for less friction while coding and/or configuring, but this is just the start, and I'm not spending an hour improving a 5 line function for a silly blog post.
 
 ### Server OS detection
-Now let's dive into the real deal, starting with the server OS detection function.
+Now let's dive into the real deal, starting with their server OS detection function.
 
 ```
 fn is_server_os() -> bool {
