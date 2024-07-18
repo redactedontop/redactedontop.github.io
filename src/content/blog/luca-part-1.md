@@ -147,7 +147,7 @@ How much time did you take writing this and/or learning rust... 2 seconds? There
 - Rename arg to path
 - Use map and Path::new to create the path
 - Instead of "file_name", name the variable just "name"
-- Use let-some and continue to reduce nesting
+- Use let-else and continue to reduce nesting
 - Use if_some_and instead of match... are you addicted to match or..?
 
 My finished product is this:
