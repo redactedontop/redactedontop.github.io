@@ -1,0 +1,36 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>🧑‍🚀 Hiya, my mate!</h1>
+			<p>
+				{SITE_DESCRIPTION}
+			</p>
+			<p>
+				Here's where I do some malware analysis, as well as other
+				things!
+			</p>
+			<p>Here are a few things I enjoy doing:</p>
+			<ul>
+				<li>Coding in rust 🦀</li>
+				<li>Chillin'</li>
+				<li>Engaging in unwanted flirting</li>
+				<li>Playing tennis</li>
+				<li>And nothing else... I'm really not that special xD</li>
+			</ul>
+			<p>Have fun! <3</p>
+		</main>
+		<Footer />
+	</body>
+</html>
