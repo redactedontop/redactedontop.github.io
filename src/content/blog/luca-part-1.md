@@ -5,7 +5,7 @@ pubDate: 'Jul 08 2024'
 heroImage: '/blog-image-1.jpg'
 ---
 
-Howdy y'all, this is my first (and probably) last series of blog posts, but I had to type this out, considering how fucking retarded <a href="https://github.com/vxunderground/MalwareSourceCode/blob/main/Win32/Stealers/Win32.Rust.LucaStealer.zip" target="_blank">the code for Luca Stealer</a> is. This post is about the anti-emulation.
+Howdy y'all, this is my first (and probably) last series of blog posts, but I had to type this out, considering how fucking horrible <a href="https://github.com/vxunderground/MalwareSourceCode/blob/main/Win32/Stealers/Win32.Rust.LucaStealer.zip" target="_blank">the code for Luca Stealer</a> is. This post is about the anti-emulation.
 
 ##### Disclaimer: the code provided here shall not be used maliciously, and is for old versions of the crates talked about. I'm also not adding async/await, as I have other things to do and it'd take too much work for my lazy dum dum ADHD brain.
 <br />
@@ -76,7 +76,7 @@ fn is_server_os() -> bool {
 }
 ```
 
-...I have no words for how stupid this is. These variable names are too complex, he barely uses any rust functions, and is making variables when he doesn't need them.
+...This is tremendously stupid. These variable names are too complex, he barely uses any rust functions, and is making variables when he doesn't need them.
 
 Starting with namespace path and hostname, the functions describe themselves, so you don't need to make them a variable. Also, "wmi_con" could be renamed to the better name, "connection". You don't even need match, you can use the let-else syntax, stable since Rust 1.65.
 
@@ -340,3 +340,4 @@ fn is_vm_by_wim_temper() -> bool {
 </br>
 
 I might continue this if I get some traction and/or friends in Session.
+Oh, and I'm just **STARTING** with a recode, you don't wanna see what I'm gonna do after seriously getting confortable with the codebase... <3
