@@ -15,9 +15,9 @@ Howdy y'all, this is my first (and probably) last series of blog posts, but I ha
 We're starting with the detect function:
 ```
 pub fn detect()  {
-	if is_server_os() || is_vm_by_wim_temper() || detect_hash_processes() {
-		process::exit(0);
-	}
+      if is_server_os() || is_vm_by_wim_temper() || detect_hash_processes() {
+        process::exit(0);
+    }
 }
 ```
 
@@ -25,22 +25,22 @@ Surprisingly, this part is actually pretty good. But instead, I'd let the users 
 
 ```
 enum Mode {
-	#[allow(non_camel_case_types)]
-	ANTI_SERVER,
-	#[allow(non_camel_case_types)]
-	WIM_TEMPER,
-	#[allow(non_camel_case_types)]
-	DETECT_HASH_PROCESSES
+    #[allow(non_camel_case_types)]
+    ANTI_SERVER,
+    #[allow(non_camel_case_types)]
+    WIM_TEMPER,
+    #[allow(non_camel_case_types)]
+    DETECT_HASH_PROCESSES
 }
 
 const MODES: &[Mode] = &[ANTI_SERVER, WIM_TEMPER, DETECT_HASH_PROCESSES];
 
 pub fn is_vm() -> bool {
-	MODES.map(|mode| match mode {
-		ANTI_SERVER => is_server_os(),
-		WIM_TEMPER => is_vm_by_wim_temper(),
-		DETECT_HASH_PROCESSES => detect_hash_processes()
-	}).fold(false, |init, acc| init || acc)
+    MODES.map(|mode| match mode {
+        ANTI_SERVER => is_server_os(),
+        WIM_TEMPER => is_vm_by_wim_temper(),
+        DETECT_HASH_PROCESSES => detect_hash_processes()
+    }).fold(false, |init, acc| init || acc)
 }
 ```
 And then the  ```process::exit(0)``` goes in main.
@@ -51,28 +51,28 @@ Now let's dive into the real deal, starting with the server OS detection functio
 
 ```
 fn is_server_os() -> bool {
-	let hostname = whoami::hostname();
-	let namespace_path = format!("{}{}", hostname, obfstr::obfstr!("\\ROOT\\CIMV2"));
-	let wmi_con = match WMIConnection::with_namespace_path(&namespace_path, COMLibrary::new().unwrap().into()) {
-		Ok(wmi_con) => wmi_con,
-		Err(_) => return false,
-	};
+    let hostname = whoami::hostname();
+    let namespace_path = format!("{}{}", hostname, obfstr::obfstr!("\\ROOT\\CIMV2"));
+    let wmi_con = match WMIConnection::with_namespace_path(&namespace_path, COMLibrary::new().unwrap().into()) {
+        Ok(wmi_con) => wmi_con,
+        Err(_) => return false,
+    };
 
-	let results: Vec<HashMap<String, Variant>> = wmi_con
-		.raw_query(obfstr::obfstr!("SELECT ProductType FROM Win32_OperatingSystem"))
-		.unwrap();
+    let results: Vec<HashMap<String, Variant>> = wmi_con
+        .raw_query(obfstr::obfstr!("SELECT ProductType FROM Win32_OperatingSystem"))
+        .unwrap();
 
-	drop(wmi_con);
+    drop(wmi_con);
 
-	for result in results {
-		for value in result.values()  {
-			if *value == Variant::UI4(2) || *value == Variant::UI4(3) {
-				return true;
-			}
-		}
-	}
+    for result in results {
+        for value in result.values()  {
+            if *value == Variant::UI4(2) || *value == Variant::UI4(3) {
+                return true;
+            }
+        }
+    }
 
-	false
+    false
 }
 ```
 
@@ -85,29 +85,29 @@ I also dislike the way results was made (unwrap, use let-else once again), but I
 My finished product is this:
 ```
 fn is_server_os() -> bool {
-	let Ok(library) = COMLibrary::new() else {
-		return false;
-	};
-	
-	let Ok(connection) = WMIConnection::with_namespace_path(&format!("{}{}", whoami::hostname(), obfstr::obfstr!(r"\ROOT\CIMV2")), library.into()) else {
-		return false;
-	};
+    let Ok(library) = COMLibrary::new() else {
+        return false;
+    };
+    
+    let Ok(connection) = WMIConnection::with_namespace_path(&format!("{}{}", whoami::hostname(), obfstr::obfstr!(r"\ROOT\CIMV2")), library.into()) else {
+        return false;
+    };
 
-	let Ok(results) = connection.raw_query(obfstr::obfstr!("SELECT ProductType FROM Win32_OperatingSystem")) else {
-		return false;
-	};
+    let Ok(results) = connection.raw_query(obfstr::obfstr!("SELECT ProductType FROM Win32_OperatingSystem")) else {
+        return false;
+    };
 
-	drop(connection);
+    drop(connection);
 
-	for result in results {
-		for value in result.values()  {
-			if *value == Variant::UI4(2) || *value == Variant::UI4(3) {
-				return true;
-			}
-		}
-	}
+    for result in results {
+        for value in result.values()  {
+            if *value == Variant::UI4(2) || *value == Variant::UI4(3) {
+                return true;
+            }
+        }
+    }
 
-	false
+    false
 }
 ```
 </br>
@@ -118,25 +118,25 @@ The code goes like this:
 
 ```
 fn detect_hash_processes() -> bool  {
-	let mut system = System::new();
-	system.refresh_all();
+    let mut system = System::new();
+    system.refresh_all();
 
-	for (_,  process) in system.processes() {
-		if let Some(arg) = process.cmd().get(0) {
-			let path = Path::new(arg);
-			
-			match path.file_stem() {
-				Some(file_name) => {
-					if file_name.len() == 64 || file_name.len() == 128 {
-						return  true; // MD5 Or SHA-512
-					}
-				},
-				None  =>  (),
-			}
-		}
-	}
-	
-	false
+    for (_,  process) in system.processes() {
+        if let Some(arg) = process.cmd().get(0) {
+            let path = Path::new(arg);
+            
+            match path.file_stem() {
+                Some(file_name) => {
+                    if file_name.len() == 64 || file_name.len() == 128 {
+                        return  true; // MD5 Or SHA-512
+                    }
+                },
+                None  =>  (),
+            }
+        }
+    }
+    
+    false
 }
 ```
 
@@ -154,24 +154,24 @@ My finished product is this:
 
 ```
 fn detect_hash_processes() -> bool  {
-	let mut system = System::new_with_specifics(
-		RefreshKind::new().with_processes(ProcessRefreshKind::everything())
-	);
+    let mut system = System::new_with_specifics(
+        RefreshKind::new().with_processes(ProcessRefreshKind::everything())
+    );
 
-	for (_,  process) in system.processes()  {
-		let Some(path) = process.cmd().first().map(Path::new) else {
-			continue;
-		};
+    for (_,  process) in system.processes()  {
+        let Some(path) = process.cmd().first().map(Path::new) else {
+            continue;
+        };
 
-		if path
-			.file_stem()
-			.is_some_and(|name| name.len() == 64 || name.len() == 128) // MD5 OR SHA-128
-		{
-			return true;
-		}
-	}
+        if path
+            .file_stem()
+            .is_some_and(|name| name.len() == 64 || name.len() == 128) // MD5 OR SHA-128
+        {
+            return true;
+        }
+    }
 
-	false
+    false
 }
 ```
 </br>
@@ -181,19 +181,19 @@ Finally, I'm tired of writing, and by chance, this file just has one last functi
 
 ```
 fn is_vm_by_wim_temper() -> bool {
-	let wmi_con = WMIConnection::new(COMLibrary::new().unwrap().into()).unwrap();  
+    let wmi_con = WMIConnection::new(COMLibrary::new().unwrap().into()).unwrap();  
 
-	let results: Vec<HashMap<String, Variant>> = wmi_con
-		.raw_query(obfstr::obfstr!("SELECT * FROM Win32_CacheMemory"))
-		.unwrap();
+    let results: Vec<HashMap<String, Variant>> = wmi_con
+        .raw_query(obfstr::obfstr!("SELECT * FROM Win32_CacheMemory"))
+        .unwrap();
 
-	drop(wmi_con);
+    drop(wmi_con);
 
-	if results.len() < 2 {
-		return true;
-	}
+    if results.len() < 2 {
+        return true;
+    }
 
-	false
+    false
 }
 ```
 
@@ -201,25 +201,25 @@ Everything that I hate in this function I've already talked about, so let's cut 
 
 ```
 fn is_vm_by_wim_temper() -> bool {
-	let Ok(library) = COMLibrary::new() else {
-		return false;
-	};
+    let Ok(library) = COMLibrary::new() else {
+        return false;
+    };
 
-	let Ok(connection) = WMIConnection::new(library.into()) else {
-		return false;
-	};
+    let Ok(connection) = WMIConnection::new(library.into()) else {
+        return false;
+    };
 
-	let Ok(results) = connection.raw_query(obfstr!("SELECT * FROM Win32_CacheMemory")) else {
-		return false;
-	};
+    let Ok(results) = connection.raw_query(obfstr!("SELECT * FROM Win32_CacheMemory")) else {
+        return false;
+    };
 
-	drop(connection);
+    drop(connection);
 
-	if results.len() < 2 {
-		return true;
-	}
+    if results.len() < 2 {
+        return true;
+    }
 
-	false
+    false
 }
 ```
 
