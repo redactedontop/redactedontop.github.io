@@ -223,7 +223,7 @@ What we learned today: rust is our friend, and you don't code in rust like you c
 
 ### Full code
 
-Here's the full code, which at the end of the series, might also be posted on github:
+Here's the full code, which at the end of the series, might also be posted on GitHub:
 ```
 use obfstr::obfstr; // Added this here because typing it 2 times is tiring
 use std::{collections::HashMap, path::Path, process};
