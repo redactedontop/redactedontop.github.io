@@ -192,7 +192,7 @@ fn is_vm_by_wim_temper() -> bool {
     if results.len() < 2 {
         return true;
     }
-    
+
     false
 }
 ```
@@ -209,7 +209,7 @@ fn is_vm_by_wim_temper() -> bool {
         return false;
     };
 
-    let Ok(results) = connection.raw_query(obfstr!("SELECT * FROM Win32_CacheMemory")) else {
+    let Ok(results) = connection.raw_query(obfstr::obfstr!("SELECT * FROM Win32_CacheMemory")) else {
         return false;
     };
 
