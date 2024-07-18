@@ -5,7 +5,7 @@ pubDate: 'Jul 08 2024'
 heroImage: '/blog-image-1.jpg'
 ---
 
-Howdy y'all, this is my first (and probably) last series of blog posts, but I had to type this out, considering how fucking retarded this code is. This post is about the anti-emulation.
+Howdy y'all, this is my first (and probably) last series of blog posts, but I had to type this out, considering how fucking retarded [the code for Luca Stealer](https://github.com/vxunderground/MalwareSourceCode/blob/main/Win32/Stealers/Win32.Rust.LucaStealer.zip) is. This post is about the anti-emulation.
 
 ##### Disclaimer: the code provided here shall not be used maliciously, and is for old versions of the crates talked about. I'm also not adding async/await, as I have other things to do and it'd take too much work for my lazy dum dum ADHD brain.
 <br />
