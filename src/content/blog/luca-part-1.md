@@ -4,6 +4,7 @@ description: 'When you fuck up your code real bad, posts like this happen...'
 pubDate: 'Jul 08 2024'
 heroImage: '/blog-image-1.jpg'
 ---
+<base target="_blank">
 
 Howdy y'all, this is my first (and probably) last series of blog posts, but I had to type this out, considering how fucking retarded [the code for Luca Stealer](https://github.com/vxunderground/MalwareSourceCode/blob/main/Win32/Stealers/Win32.Rust.LucaStealer.zip) is. This post is about the anti-emulation.
 
