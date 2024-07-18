@@ -15,7 +15,7 @@ Howdy y'all, this is my first (and probably) last series of blog posts, but I ha
 We're starting with the detect function:
 ```
 pub fn detect()  {
-      if is_server_os() || is_vm_by_wim_temper() || detect_hash_processes() {
+    if is_server_os() || is_vm_by_wim_temper() || detect_hash_processes() {
         process::exit(0);
     }
 }
