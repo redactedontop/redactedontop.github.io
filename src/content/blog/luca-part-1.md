@@ -138,7 +138,7 @@ fn detect_hash_processes() -> bool  {
 }
 ```
 
-How much time did you take writing this and/or learning rust... 2 seconds? There's so much to improve:
+If I didn't know this was authored by a human, I'd think ChatGPT wrote this.. There's so much to improve:
 
 - Don't refresh all, make a system with processes refreshed
 - Don't use get(0), use first()
