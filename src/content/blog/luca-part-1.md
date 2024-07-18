@@ -1,6 +1,6 @@
 ---
 title: 'Luca stealer - how to fuck up your code (part 1; anti-emulation)'
-description: 'When you fuck up your code real bad, posts like this happen...'
+description: 'Please take this as an example of what NOT to do...'
 pubDate: 'Jul 08 2024'
 heroImage: '/blog-image-1.jpg'
 ---
