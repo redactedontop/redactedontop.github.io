@@ -80,7 +80,7 @@ fn is_server_os() -> bool {
 
 Starting with namespace path and hostname, the functions describe themselves, so you don't need to make them a variable. Also, "wmi_con" could be renamed to the better name, "connection". You don't even need match, you can use the let-else syntax, stable since Rust 1.65.
 
-I also dislike the way results was made (unwrap, use let-else once again), but I don't have much experience with that part, so I might leave it alone for the most part. You could also save a character and make the code cleaner by changing the "\\ROOT\\CIMv2" to r"\ROOT\CIMv2".
+I also dislike the way results was made (unwrap, use let-else once again), but I don't have much experience with that part, so I might leave it alone for the most part. You could also save a character and make the code cleaner by changing the "\\\\ROOT\\\\CIMv2" to r"\ROOT\CIMv2".
 
 My finished product is this:
 ```
