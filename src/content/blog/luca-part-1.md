@@ -49,7 +49,7 @@ Now let's get into the meat, starting with the server OS detection function.
 fn is_server_os() -> bool {
 	let hostname = whoami::hostname();
 	let namespace_path = format!("{}{}", hostname, obfstr::obfstr!("\\ROOT\\CIMV2"));
-	let wmi_con = match WMIConnection::with_namespace_path(&namespace_path,  COMLibrary::new().unwrap().into()) {
+	let wmi_con = match WMIConnection::with_namespace_path(&namespace_path, COMLibrary::new().unwrap().into()) {
 		Ok(wmi_con) => wmi_con,
 		Err(_) => return false,
 	};
@@ -161,7 +161,7 @@ fn detect_hash_processes() -> bool  {
 			.file_stem()
 			.is_some_and(|name| name.len() == 64 || name.len() == 128) // MD5 OR SHA-128
 		{
-			return  true;
+			return true;
 		}
 	}
 
@@ -175,14 +175,14 @@ Finally, I'm tired of writing, and by chance, this file just has one last functi
 fn is_vm_by_wim_temper() -> bool {
 	let wmi_con = WMIConnection::new(COMLibrary::new().unwrap().into()).unwrap();  
 
-	let results: Vec<HashMap<String,  Variant>> = wmi_con
+	let results: Vec<HashMap<String, Variant>> = wmi_con
 		.raw_query(obfstr::obfstr!("SELECT * FROM Win32_CacheMemory"))
 		.unwrap();
 
 	drop(wmi_con);
 
 	if results.len() < 2 {
-		return  true;
+		return true;
 	}
 
 	false
@@ -193,12 +193,11 @@ Everything that I hate in this function I've already talked about, so let's cut 
 
 ```
 fn is_vm_by_wim_temper() -> bool {
-
-let Ok(library) = COMLibrary::new() else {
+	let Ok(library) = COMLibrary::new() else {
 		return false;
 	};
 
-	let Ok(connection)  = WMIConnection::new(library.into())  else {
+	let Ok(connection) = WMIConnection::new(library.into()) else {
 		return false;
 	};
 
