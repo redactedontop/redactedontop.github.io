@@ -328,4 +328,5 @@ fn is_vm_by_wim_temper() -> bool {
 </br>
 
 I might continue this if I get some traction and/or friends in Session.
+If I missed something, please tell me.
 Oh, and I'm just **STARTING** with a recode, you don't wanna see what I'm gonna do after seriously getting confortable with the codebase... <3
