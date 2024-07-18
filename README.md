@@ -50,3 +50,11 @@ All commands are run from the root of the project, from a terminal:
 ## Credit
 
 This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+
+## Post guidelines
+
+- Write only the highest quality posts
+- Separate the post between functions or sections (incase the functions are too big)
+- Showcase the original function/section first, then explain why it's wrong and then showcase your own version
+- Change indentation from tabs to 4 spaces 
+- Pull request
