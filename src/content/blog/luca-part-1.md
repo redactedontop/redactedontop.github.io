@@ -134,14 +134,14 @@ fn detect_hash_processes() -> bool  {
 }
 ```
 
-How much time did you take writing this and/or learning rust... 2 seconds? There's so much to improve:
+How much time did you take writing this and/or learning rust... 2 seconds? There's so much to improve:\
 	- Don't refresh all, make a system with processes refreshed\
 	- Don't use get(0), use first()\
 	- Rename arg to path\
 	- Use map and Path::new to create the path\
 	- Instead of "file_name", name the variable just "name"\
 	- Use let-some and continue to reduce nesting\
-	- Use if_some_and instead of match... are you addicted to match or..?\
+	- Use if_some_and instead of match... are you addicted to match or..?
 
 My finished product is this:
 
