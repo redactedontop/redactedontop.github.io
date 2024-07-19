@@ -234,7 +234,6 @@ Here's the full code, which at the end of the series, might also be posted on Gi
 use obfstr::obfstr; // Added this here because typing it is tiring
 use std::{
     collections::HashMap,
-    io::{Error, ErrorKind},
     path::Path,
     process,
 };
@@ -262,12 +261,6 @@ pub fn is_vm() -> bool {
         .any(|detection| detection)
 }
 
-pub fn main() -> Result<(), Error> {
-    (!is_vm())
-        .then_some(())
-        .ok_or(Error::new(ErrorKind::Other, "is vm"))
-}
-
 // This function wasn't in my write-up for reasons I've already described, I've added it only for compatibility
 pub fn detect() {
     if is_vm() {
@@ -283,7 +276,7 @@ fn is_server_os() -> bool {
     let Ok(connection) = WMIConnection::with_namespace_path(obfstr!(r"ROOT\CIMV2"), library) else {
         return false;
     };
-    
+
     let Ok(results) = connection.raw_query::<HashMap<String, Variant>>(obfstr!(
         "SELECT ProductType FROM Win32_OperatingSystem"
     )) else {
