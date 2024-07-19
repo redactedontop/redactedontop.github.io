@@ -13,7 +13,7 @@ Howdy y'all, this is my first (and probably) last series of blog posts, but I ha
 ### The detect function
 
 We're starting with their detect function:
-```
+```rust
 pub fn detect()  {
     if is_server_os() || is_vm_by_wim_temper() || detect_hash_processes() {
         process::exit(0);
@@ -23,7 +23,7 @@ pub fn detect()  {
 
 Surprisingly, this part is actually pretty good. But instead, I'd let the users select what functions they want. For example (this code was written in 2 minutes):
 
-```
+```rust
 #[allow(non_camel_case_types)]
 enum Mode {
     ANTI_SERVER,
@@ -41,13 +41,13 @@ pub fn is_vm() -> bool {
     }).fold(false, |init, acc| init || acc)
 }
 ```
-And then the  ```process::exit(0)``` goes in main.
+And then the  `process::exit(0)` goes in main.
 You could probably spend some more time to use function pointers for less friction while coding and/or configuring, but this is just the start, and I'm not spending an hour improving a 5 line function for a silly blog post.
 
 ### Server OS detection
 Now let's dive into the real deal, starting with their server OS detection function.
 
-```
+```rust
 fn is_server_os() -> bool {
     let hostname = whoami::hostname();
     let namespace_path = format!("{}{}", hostname, obfstr::obfstr!("\\ROOT\\CIMV2"));
@@ -81,7 +81,7 @@ Starting with namespace path and hostname, the functions describe themselves, so
 I also dislike the way results was made (unwrap, use let-else once again), but I don't have much experience with that part, so I might leave it alone for the most part. You could also save a character and make the code cleaner by changing the "\\\\ROOT\\\\CIMv2" to r"\ROOT\CIMv2". You can also use into_values to not need to dereference, which in my opinion looks ugly.
 
 My finished product is this:
-```
+```rust
 fn is_server_os() -> bool {
     let Ok(library) = COMLibrary::new() else {
         return false;
@@ -114,7 +114,7 @@ fn is_server_os() -> bool {
 Moving on, let's talk about the hash process detection.
 The code goes like this:
 
-```
+```rust
 fn detect_hash_processes() -> bool  {
     let mut system = System::new();
     system.refresh_all();
@@ -150,7 +150,7 @@ If I didn't know this was authored by a human, I'd think ChatGPT wrote this.. Th
 
 My finished product is this:
 
-```
+```rust
 fn detect_hash_processes() -> bool  {
     let mut system = System::new_with_specifics(
         RefreshKind::new().with_processes(ProcessRefreshKind::everything())
@@ -177,7 +177,7 @@ fn detect_hash_processes() -> bool  {
 ### Detection by WIM temper
 Finally, I'm tired of writing, and by chance, this file just has one last function:
 
-```
+```rust
 fn is_vm_by_wim_temper() -> bool {
     let wmi_con = WMIConnection::new(COMLibrary::new().unwrap().into()).unwrap();  
 
@@ -197,7 +197,7 @@ fn is_vm_by_wim_temper() -> bool {
 
 Everything that I hate in this function I've already talked about, so let's cut the chase and finish this rewrite.
 
-```
+```rust
 fn is_vm_by_wim_temper() -> bool {
     let Ok(library) = COMLibrary::new() else {
         return false;
@@ -222,7 +222,7 @@ What did we learn today, kids? "Rust and cargo are our best friends; You code di
 ### Full code
 
 Here's the full code, which at the end of the series, might also be posted on GitHub:
-```
+```rust
 use obfstr::obfstr; // Added this here because typing it 2 times is tiring
 use std::{collections::HashMap, path::Path, process};
 use sysinfo::System;
