@@ -155,7 +155,7 @@ fn detect_hash_processes() -> bool {
         if path
             .file_stem()
             .map(OsStr::len)
-            .is_some_and(|len| len > 63 && len < 513 && (len & (len - 1)) == 0)
+            .is_some_and(|len| len == 64 || len == 128) // MD5 or SHA-128
         {
             return true;
         }
@@ -282,7 +282,7 @@ fn detect_hash_processes() -> bool {
         if path
             .file_stem()
             .map(OsStr::len)
-            .is_some_and(|len| len > 63 && len < 513 && (len & (len - 1)) == 0)
+            .is_some_and(|len| len == 64 || len == 128) // MD5 or SHA-128
         {
             return true;
         }
