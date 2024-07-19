@@ -116,7 +116,7 @@ fn detect_hash_processes() -> bool  {
             match path.file_stem() {
                 Some(file_name) => {
                     if file_name.len() == 64 || file_name.len() == 128 {
-                        return  true; // MD5 Or SHA-512
+                        return true; // MD5 Or SHA-512
                     }
                 },
                 None  =>  (),
@@ -154,7 +154,8 @@ fn detect_hash_processes() -> bool {
 
         if path
             .file_stem()
-            .is_some_and(|name| name.len() == 64 || name.len() == 128)
+            .map(OsStr::len)
+            .is_some_and(|len| len > 63 && len < 513 && (len & (len - 1)) == 0)
         {
             return true;
         }
@@ -216,9 +217,8 @@ So, what did we learn today..? Rust and cargo are our best friends; You code dif
 
 Here's the full code, which at the end of the series, might also be posted on GitHub:
 ```rust
-
 use obfstr::obfstr; // Added this here because typing it is tiring
-use std::{collections::HashMap, path::Path, process};
+use std::{ffi::OsStr, collections::HashMap, path::Path, process};
 use sysinfo::{ProcessRefreshKind, RefreshKind, System, UpdateKind};
 use wmi::{COMLibrary, Variant, WMIConnection};
 
@@ -281,7 +281,8 @@ fn detect_hash_processes() -> bool {
 
         if path
             .file_stem()
-            .is_some_and(|name| name.len() == 64 || name.len() == 128)
+            .map(OsStr::len)
+            .is_some_and(|len| len > 63 && len < 513 && (len & (len - 1)) == 0)
         {
             return true;
         }
