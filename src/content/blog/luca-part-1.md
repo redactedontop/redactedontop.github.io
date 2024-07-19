@@ -97,11 +97,9 @@ fn is_server_os() -> bool {
 
     drop(connection);
 
-    for result in results {
-        for value in result.into_values()  {
-            if value == Variant::UI4(2) || value == Variant::UI4(3) {
-                return true;
-            }
+    for result in results.map(HashMap::into_values) {
+        if value == Variant::UI4(2) || value == Variant::UI4(3) {
+            return true;
         }
     }
 
@@ -274,11 +272,9 @@ fn is_server_os() -> bool {
 
     drop(connection);
 
-    for result in results {
-        for value in result.into_values() {
-            if value == Variant::UI4(2) || value == Variant::UI4(3) {
-                return true;
-            }
+    for result in results.map(HashMap::into_values) {
+        if value == Variant::UI4(2) || value == Variant::UI4(3) {
+            return true;
         }
     }
 
