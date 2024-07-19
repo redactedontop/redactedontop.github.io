@@ -31,13 +31,13 @@ enum Mode {
     DETECT_HASH_PROCESSES,
 }
 
-const MODES: &[Mode] = &[ANTI_SERVER, WIM_TEMPER, DETECT_HASH_PROCESSES];
+const MODES: &[Mode] = &[Mode::ANTI_SERVER, Mode::WIM_TEMPER, Mode::DETECT_HASH_PROCESSES];
 
 pub fn is_vm() -> bool {
     MODES.map(|mode| match mode {
-        ANTI_SERVER => is_server_os(),
-        WIM_TEMPER => is_vm_by_wim_temper(),
-        DETECT_HASH_PROCESSES => detect_hash_processes()
+        Mode::ANTI_SERVER => is_server_os(),
+        Mode::WIM_TEMPER => is_vm_by_wim_temper(),
+        Mode::DETECT_HASH_PROCESSES => detect_hash_processes()
     }).fold(false, |init, acc| init || acc)
 }
 ```
@@ -235,7 +235,7 @@ enum Mode {
     DETECT_HASH_PROCESSES,
 }
 
-const MODES: &[Mode] = &[ANTI_SERVER, WIM_TEMPER, DETECT_HASH_PROCESSES];
+const MODES: &[Mode] = &[Mode::ANTI_SERVER, Mode::WIM_TEMPER, Mode::DETECT_HASH_PROCESSES];
 
 pub fn is_vm() -> bool {
     MODES
