@@ -21,31 +21,16 @@ pub fn detect()  {
 }
 ```
 
-Surprisingly, this part is actually pretty good. But instead, I'd let the users select what functions they want. For example (this code was written in 2 minutes):
+Surprisingly, this part is actually pretty good. But instead, I'd let the users select what functions they want by using function pointers (as it has the less friction for both configuring and development). For example, doing this:
 
 ```rust
-#[allow(non_camel_case_types)]
-enum Mode {
-    ANTI_SERVER,
-    WIM_TEMPER,
-    DETECT_HASH_PROCESSES,
-}
-
-const MODES: &[Mode] = &[Mode::ANTI_SERVER, Mode::WIM_TEMPER, Mode::DETECT_HASH_PROCESSES];
+const MODES: &[fn() -> bool] = &[is_server_os, is_vm_by_wim_temper, detect_hash_processes];
 
 pub fn is_vm() -> bool {
-    MODES
-        .iter()
-        .map(|mode| match mode {
-            Mode::ANTI_SERVER => is_server_os(),
-            Mode::WIM_TEMPER => is_vm_by_wim_temper(),
-            Mode::DETECT_HASH_PROCESSES => detect_hash_processes()
-        })
-        .any(|detection| detetection)
+    MODES.iter().any(|mode| mode())
 }
 ```
-And then the  `process::exit(0)` goes in main.
-You could probably spend some more time to use function pointers for less friction while coding and/or configuring, but this is just the start, and I'm not spending an hour improving a 5 line function for a silly blog post.
+And then the `process::exit(0)` goes in main.
 
 ### Server OS detection
 Now let's dive into the real deal, starting with their server OS detection function.
@@ -180,7 +165,7 @@ fn detect_hash_processes() -> bool {
 ```
 </br>
 
-### Detection by WIM temper
+### Detection by WIM tempererature
 Finally, I'm tired of writing, and by chance, this file just has one last function:
 
 ```rust
@@ -204,7 +189,7 @@ fn is_vm_by_wim_temper() -> bool {
 Everything that I hate in this function I've already talked about, so let's cut the chase and finish this rewrite.
 
 ```rust
-fn is_vm_by_wim_temper() -> bool {
+fn detect_wim_temperature() -> bool {
     let Ok(library) = COMLibrary::new() else {
         return false;
     };
@@ -232,33 +217,19 @@ So, what did we learn today..? Rust and cargo are our best friends; You code dif
 Here's the full code, which at the end of the series, might also be posted on GitHub:
 ```rust
 use obfstr::obfstr; // Added this here because typing it is tiring
-use std::{
-    collections::HashMap,
-    path::Path,
-    process,
-};
+use std::{collections::HashMap, path::Path, process};
 use sysinfo::{ProcessRefreshKind, RefreshKind, System, UpdateKind};
 use wmi::{COMLibrary, Variant, WMIConnection};
-use Mode::*;
 
-#[allow(non_camel_case_types)]
-enum Mode {
-    ANTI_SERVER,
-    WIM_TEMPER,
-    DETECT_HASH_PROCESSES,
-}
-
-const MODES: &[Mode] = &[ANTI_SERVER, WIM_TEMPER, DETECT_HASH_PROCESSES];
+const MODES: &[fn() -> bool] = &[is_server_os, detect_wim_temperature, detect_hash_processes];
 
 pub fn is_vm() -> bool {
-    MODES
-        .iter()
-        .map(|mode| match mode {
-            ANTI_SERVER => is_server_os(),
-            WIM_TEMPER => is_vm_by_wim_temper(),
-            DETECT_HASH_PROCESSES => detect_hash_processes(),
-        })
-        .any(|detection| detection)
+    MODES.iter().any(|mode| mode())
+}
+
+pub fn main() {
+    detect();
+    println!("I'm not a VM!");
 }
 
 // This function wasn't in my write-up for reasons I've already described, I've added it only for compatibility
@@ -318,7 +289,7 @@ fn detect_hash_processes() -> bool {
     false
 }
 
-fn is_vm_by_wim_temper() -> bool {
+fn detect_wim_temperature() -> bool {
     let Ok(library) = COMLibrary::new() else {
         return false;
     };
