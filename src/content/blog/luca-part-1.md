@@ -30,7 +30,7 @@ pub fn is_vm() -> bool {
     MODES.iter().any(|mode| mode())
 }
 ```
-And then the `process::exit(0)` goes in main.
+And then the `process::exit(0)` goes in main. Simple as that, and easily better.
 
 ### Server OS detection
 Now let's dive into the real deal, starting with their server OS detection function.
@@ -216,6 +216,7 @@ So, what did we learn today..? Rust and cargo are our best friends; You code dif
 
 Here's the full code, which at the end of the series, might also be posted on GitHub:
 ```rust
+
 use obfstr::obfstr; // Added this here because typing it is tiring
 use std::{collections::HashMap, path::Path, process};
 use sysinfo::{ProcessRefreshKind, RefreshKind, System, UpdateKind};
