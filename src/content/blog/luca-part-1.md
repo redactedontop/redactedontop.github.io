@@ -138,7 +138,7 @@ fn detect_hash_processes() -> bool  {
 }
 ```
 
-If I didn't know this was authored by a human, I'd think ChatGPT wrote this.. There's so much to improve:
+If I didn't know this was authored by a human, I'd think ChatGPT wrote this.. This looks like it was made by GPT 4's distant cousin, JBR -4... There's so much to improve:
 
 - Don't refresh all, make a system with processes refreshed
 - Don't use get(0), use first()
