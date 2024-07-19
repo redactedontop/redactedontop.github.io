@@ -110,7 +110,7 @@ fn is_server_os() -> bool {
 
 ### Hash process detection
 Moving on, let's talk about the hash process detection.
-The code goes like this:
+Their code goes like this:
 
 ```rust
 fn detect_hash_processes() -> bool  {
