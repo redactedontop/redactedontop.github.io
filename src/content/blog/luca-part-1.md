@@ -221,7 +221,7 @@ So, what did we learn today..? Rust and cargo are our best friends; You code dif
 
 Here's the full code, which at the end of the series, might also be posted on GitHub:
 ```rust
-use obfstr::obfstr; // Added this here because typing it 2 times is tiring
+use obfstr::obfstr; // Added this here because typing this lots of times is tiring
 use std::{collections::HashMap, path::Path, process};
 use sysinfo::System;
 use wmi::{COMLibrary, Variant, WMIConnection};
