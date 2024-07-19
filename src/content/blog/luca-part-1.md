@@ -81,7 +81,7 @@ fn is_server_os() -> bool {
 
 Starting with namespace path and hostname, the functions describe themselves, so you don't need to make them a variable. Also, "wmi_con" could be renamed to the better name, "connection". You don't even need match, you can use the let-else syntax, stable since Rust 1.65.
 
-I also dislike the way results was made (unwrap, use let-else once again), but I don't have much experience with that part, so I might leave it alone for the most part. You could also save a character and make the code cleaner by changing the "\\\\ROOT\\\\CIMv2" to r"\ROOT\CIMv2". You can also use into_values to not need to dereference, which in my opinion looks ugly. I'm also gonna use fallible and remove the .into(), as it's useless.
+I also dislike the way results was made (unwrap, use let-else once again), but I don't have much experience with that part, so I might leave it alone for the most part. You could also save a character and make the code cleaner by changing the "\\\\ROOT\\\\CIMv2" to r"ROOT\CIMv2" (because r"\ROOT\CIMv2" is buggy, just like the original). You can also use into_values to not need to dereference, which in my opinion looks ugly. Also, both the hostname and the .into() are useless, so I removed them.
 
 My finished product is this:
 ```rust
@@ -90,14 +90,7 @@ fn is_server_os() -> bool {
         return false;
     };
 
-    let Ok(hostname) = fallible::hostname() else {
-        return false;
-    };
-
-    let Ok(connection) = WMIConnection::with_namespace_path(
-        &format!("{hostname}{}", obfstr!(r"\ROOT\CIMV2")),
-        library,
-    ) else {
+    let Ok(connection) = WMIConnection::with_namespace_path(obfstr!(r"ROOT\CIMV2"), library) else {
         return false;
     };
 
@@ -109,10 +102,12 @@ fn is_server_os() -> bool {
 
     drop(connection);
 
-    for value in results.into_iter().flat_map(HashMap::into_values) {
-        if value == Variant::UI4(2) || value == Variant::UI4(3) {
-            return true;
-        }
+    for variant in results.into_iter().flat_map(HashMap::into_values) {
+        let Variant::UI4(2..4) = variant else {
+            continue;
+        };
+
+        return true;
     }
 
     false
@@ -244,7 +239,6 @@ use std::{
     process,
 };
 use sysinfo::{ProcessRefreshKind, RefreshKind, System, UpdateKind};
-use whoami::fallible;
 use wmi::{COMLibrary, Variant, WMIConnection};
 use Mode::*;
 
@@ -268,6 +262,12 @@ pub fn is_vm() -> bool {
         .any(|detection| detection)
 }
 
+pub fn main() -> Result<(), Error> {
+    (!is_vm())
+        .then_some(())
+        .ok_or(Error::new(ErrorKind::Other, "is vm"))
+}
+
 // This function wasn't in my write-up for reasons I've already described, I've added it only for compatibility
 pub fn detect() {
     if is_vm() {
@@ -280,17 +280,10 @@ fn is_server_os() -> bool {
         return false;
     };
 
-    let Ok(hostname) = fallible::hostname() else {
+    let Ok(connection) = WMIConnection::with_namespace_path(obfstr!(r"ROOT\CIMV2"), library) else {
         return false;
     };
-
-    let Ok(connection) = WMIConnection::with_namespace_path(
-        &format!("{hostname}{}", obfstr!(r"\ROOT\CIMV2")),
-        library,
-    ) else {
-        return false;
-    };
-
+    
     let Ok(results) = connection.raw_query::<HashMap<String, Variant>>(obfstr!(
         "SELECT ProductType FROM Win32_OperatingSystem"
     )) else {
@@ -299,10 +292,12 @@ fn is_server_os() -> bool {
 
     drop(connection);
 
-    for value in results.into_iter().flat_map(HashMap::into_values) {
-        if value == Variant::UI4(2) || value == Variant::UI4(3) {
-            return true;
-        }
+    for variant in results.into_iter().flat_map(HashMap::into_values) {
+        let Variant::UI4(2..4) = variant else {
+            continue;
+        };
+
+        return true;
     }
 
     false
