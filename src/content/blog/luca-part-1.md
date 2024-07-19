@@ -1,5 +1,5 @@
 ---
-title: 'Luca stealer - how to fuck up your code (part 1; anti-emulation)'
+title: 'Luca stealer - why your Rust code is dogshit (part 1; anti-emulation)'
 description: 'Please take this as an example of what NOT to do...'
 pubDate: 'Jul 08 2024'
 heroImage: '/blog-image-1.jpg'
