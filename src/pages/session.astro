@@ -7,10 +7,23 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 <html lang="en">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<script>
-			let session = window.open();
-			session!.location.href = "https://www.getsession.org/download";
-			window.location.replace("/session-id.svg");
-		</script>
+		<style>
+			body {
+				text-align: center;
+			}
+		</style>
 	</head>
+
+	<body>
+		<p>
+			Heya, due to limitations with the browser, we can't automatically
+			redirect you.
+			<br />
+			Here are the 2 links:
+		</p>
+		<a href="/session-id.svg" target="_blank"> Session ID QR code </a>
+		<a href="https://www.getsession.org/download" target="_blank">
+			Session download
+		</a>
+	</body>
 </html>
