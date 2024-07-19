@@ -56,5 +56,4 @@ This theme is based off of the lovely [Bear Blog](https://github.com/HermanMarti
 - Write only the highest quality posts
 - Separate the post between functions or sections (incase the functions are too big)
 - Showcase the original function/section first, then explain why it's wrong and then showcase your own version
-- Change indentation from tabs to 4 spaces 
 - Pull request

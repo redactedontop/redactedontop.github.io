@@ -15,9 +15,9 @@ Howdy y'all, this is my first (and probably) last series of blog posts, but I ha
 We're starting with their detect function:
 ```rust
 pub fn detect()  {
-    if is_server_os() || is_vm_by_wim_temper() || detect_hash_processes() {
-        process::exit(0);
-    }
+	if is_server_os() || is_vm_by_wim_temper() || detect_hash_processes() {
+		process::exit(0);
+	}
 }
 ```
 
@@ -27,7 +27,7 @@ Surprisingly, this part is actually pretty good. But instead, I'd let the users 
 const MODES: &[fn() -> bool] = &[is_server_os, is_vm_by_wim_temper, detect_hash_processes];
 
 pub fn is_vm() -> bool {
-    MODES.iter().any(|mode| mode())
+	MODES.iter().any(|mode| mode())
 }
 ```
 And then the `process::exit(0)` goes in main. Simple as that, and easily better.
@@ -37,28 +37,28 @@ Now let's dive into the real deal, starting with their server OS detection funct
 
 ```rust
 fn is_server_os() -> bool {
-    let hostname = whoami::hostname();
-    let namespace_path = format!("{}{}", hostname, obfstr::obfstr!("\\ROOT\\CIMV2"));
-    let wmi_con = match WMIConnection::with_namespace_path(&namespace_path, COMLibrary::new().unwrap().into()) {
-        Ok(wmi_con) => wmi_con,
-        Err(_) => return false,
-    };
+	let hostname = whoami::hostname();
+	let namespace_path = format!("{}{}", hostname, obfstr::obfstr!("\\ROOT\\CIMV2"));
+	let wmi_con = match WMIConnection::with_namespace_path(&namespace_path, COMLibrary::new().unwrap().into()) {
+		Ok(wmi_con) => wmi_con,
+		Err(_) => return false,
+	};
 
-    let results: Vec<HashMap<String, Variant>> = wmi_con
-        .raw_query(obfstr::obfstr!("SELECT ProductType FROM Win32_OperatingSystem"))
-        .unwrap();
+	let results: Vec<HashMap<String, Variant>> = wmi_con
+		.raw_query(obfstr::obfstr!("SELECT ProductType FROM Win32_OperatingSystem"))
+		.unwrap();
 
-    drop(wmi_con);
+	drop(wmi_con);
 
-    for result in results {
-        for value in result.values()  {
-            if *value == Variant::UI4(2) || *value == Variant::UI4(3) {
-                return true;
-            }
-        }
-    }
+	for result in results {
+		for value in result.values()  {
+			if *value == Variant::UI4(2) || *value == Variant::UI4(3) {
+				return true;
+			}
+		}
+	}
 
-    false
+	false
 }
 ```
 
@@ -71,34 +71,34 @@ I also dislike the way results was made (unwrap, use let-else once again), but I
 My finished product is this:
 ```rust
 fn is_server_os() -> bool {
-    let Ok(library) = COMLibrary::new() else {
-        return false;
-    };
+	let Ok(library) = COMLibrary::new() else {
+		return false;
+	};
 
-    let Ok(connection) = WMIConnection::with_namespace_path(obfstr!(r"ROOT\CIMV2"), library) else {
-        return false;
-    };
+	let Ok(connection) = WMIConnection::with_namespace_path(obfstr!(r"ROOT\CIMV2"), library) else {
+		return false;
+	};
 
-    let Ok(results) = connection.raw_query::<HashMap<String, Variant>>(obfstr!(
-        "SELECT ProductType FROM Win32_OperatingSystem"
-    )) else {
-        return false;
-    };
+	let Ok(results) = connection.raw_query::<HashMap<String, Variant>>(obfstr!(
+		"SELECT ProductType FROM Win32_OperatingSystem"
+	)) else {
+		return false;
+	};
 
-    drop(connection);
+	drop(connection);
 
-    for variant in results.into_iter().flat_map(HashMap::into_values) {
-        let Variant::UI4(2..4) = variant else {
-            continue;
-        };
+	for variant in results.into_iter().flat_map(HashMap::into_values) {
+		let Variant::UI4(2..4) = variant else {
+			continue;
+		};
 
-        return true;
-    }
+		return true;
+	}
 
-    false
+	false
 }
 ```
-</br>
+<br />
 
 ### Hash process detection
 Moving on, let's talk about the hash process detection.
@@ -106,25 +106,25 @@ Their code goes like this:
 
 ```rust
 fn detect_hash_processes() -> bool  {
-    let mut system = System::new();
-    system.refresh_all();
+	let mut system = System::new();
+	system.refresh_all();
 
-    for (_,  process) in system.processes() {
-        if let Some(arg) = process.cmd().get(0) {
-            let path = Path::new(arg);
-            
-            match path.file_stem() {
-                Some(file_name) => {
-                    if file_name.len() == 64 || file_name.len() == 128 {
-                        return true; // MD5 Or SHA-512
-                    }
-                },
-                None  =>  (),
-            }
-        }
-    }
-    
-    false
+	for (_,  process) in system.processes() {
+		if let Some(arg) = process.cmd().get(0) {
+			let path = Path::new(arg);
+			
+			match path.file_stem() {
+				Some(file_name) => {
+					if file_name.len() == 64 || file_name.len() == 128 {
+						return true; // MD5 Or SHA-512
+					}
+				},
+				None  =>  (),
+			}
+		}
+	}
+	
+	false
 }
 ```
 
@@ -142,48 +142,48 @@ My finished product is this:
 
 ```rust
 fn detect_hash_processes() -> bool {
-    let system = System::new_with_specifics(
-        RefreshKind::new()
-            .with_processes(ProcessRefreshKind::new().with_cmd(UpdateKind::OnlyIfNotSet)),
-    );
+	let system = System::new_with_specifics(
+		RefreshKind::new()
+			.with_processes(ProcessRefreshKind::new().with_cmd(UpdateKind::OnlyIfNotSet)),
+	);
 
-    for process in system.processes().values() {
-        let Some(path) = process.cmd().first().map(Path::new) else {
-            continue;
-        };
+	for process in system.processes().values() {
+		let Some(path) = process.cmd().first().map(Path::new) else {
+			continue;
+		};
 
-        if path
-            .file_stem()
-            .map(OsStr::len)
-            .is_some_and(|len| len == 64 || len == 128) // MD5 or SHA-128
-        {
-            return true;
-        }
-    }
+		if path
+			.file_stem()
+			.map(OsStr::len)
+			.is_some_and(|len| len == 64 || len == 128) // MD5 or SHA-128
+		{
+			return true;
+		}
+	}
 
-    false
+	false
 }
 ```
-</br>
+<br />
 
 ### Detection by WIM tempererature
 Finally, I'm tired of writing, and by chance, this file just has one last function:
 
 ```rust
 fn is_vm_by_wim_temper() -> bool {
-    let wmi_con = WMIConnection::new(COMLibrary::new().unwrap().into()).unwrap();  
+	let wmi_con = WMIConnection::new(COMLibrary::new().unwrap().into()).unwrap();  
 
-    let results: Vec<HashMap<String, Variant>> = wmi_con
-        .raw_query(obfstr::obfstr!("SELECT * FROM Win32_CacheMemory"))
-        .unwrap();
+	let results: Vec<HashMap<String, Variant>> = wmi_con
+		.raw_query(obfstr::obfstr!("SELECT * FROM Win32_CacheMemory"))
+		.unwrap();
 
-    drop(wmi_con);
+	drop(wmi_con);
 
-    if results.len() < 2 {
-        return true;
-    }
+	if results.len() < 2 {
+		return true;
+	}
 
-    false
+	false
 }
 ```
 
@@ -191,23 +191,23 @@ Everything that I hate in this function I've already talked about, so let's cut 
 
 ```rust
 fn detect_wim_temperature() -> bool {
-    let Ok(library) = COMLibrary::new() else {
-        return false;
-    };
+	let Ok(library) = COMLibrary::new() else {
+		return false;
+	};
 
-    let Ok(connection) = WMIConnection::new(library) else {
-        return false;
-    };
+	let Ok(connection) = WMIConnection::new(library) else {
+		return false;
+	};
 
-    let Ok(results) = connection
-        .raw_query::<HashMap<String, Variant>>(obfstr!("SELECT * FROM Win32_CacheMemory"))
-    else {
-        return false;
-    };
+	let Ok(results) = connection
+		.raw_query::<HashMap<String, Variant>>(obfstr!("SELECT * FROM Win32_CacheMemory"))
+	else {
+		return false;
+	};
 
-    drop(connection);
+	drop(connection);
 
-    results.len() < 2
+	results.len() < 2
 }
 ```
 
@@ -225,94 +225,94 @@ use wmi::{COMLibrary, Variant, WMIConnection};
 const MODES: &[fn() -> bool] = &[is_server_os, detect_wim_temperature, detect_hash_processes];
 
 pub fn is_vm() -> bool {
-    MODES.iter().any(|mode| mode())
+	MODES.iter().any(|mode| mode())
 }
 
 pub fn main() {
-    detect();
-    println!("I'm not a VM!");
+	detect();
+	println!("I'm not a VM!");
 }
 
 // This function wasn't in my write-up for reasons I've already described, I've added it only for compatibility
 pub fn detect() {
-    if is_vm() {
-        process::exit(0);
-    }
+	if is_vm() {
+		process::exit(0);
+	}
 }
 
 fn is_server_os() -> bool {
-    let Ok(library) = COMLibrary::new() else {
-        return false;
-    };
+	let Ok(library) = COMLibrary::new() else {
+		return false;
+	};
 
-    let Ok(connection) = WMIConnection::with_namespace_path(obfstr!(r"ROOT\CIMV2"), library) else {
-        return false;
-    };
+	let Ok(connection) = WMIConnection::with_namespace_path(obfstr!(r"ROOT\CIMV2"), library) else {
+		return false;
+	};
 
-    let Ok(results) = connection.raw_query::<HashMap<String, Variant>>(obfstr!(
-        "SELECT ProductType FROM Win32_OperatingSystem"
-    )) else {
-        return false;
-    };
+	let Ok(results) = connection.raw_query::<HashMap<String, Variant>>(obfstr!(
+		"SELECT ProductType FROM Win32_OperatingSystem"
+	)) else {
+		return false;
+	};
 
-    drop(connection);
+	drop(connection);
 
-    for variant in results.into_iter().flat_map(HashMap::into_values) {
-        let Variant::UI4(2..4) = variant else {
-            continue;
-        };
+	for variant in results.into_iter().flat_map(HashMap::into_values) {
+		let Variant::UI4(2..4) = variant else {
+			continue;
+		};
 
-        return true;
-    }
+		return true;
+	}
 
-    false
+	false
 }
 
 fn detect_hash_processes() -> bool {
-    let system = System::new_with_specifics(
-        RefreshKind::new()
-            .with_processes(ProcessRefreshKind::new().with_cmd(UpdateKind::OnlyIfNotSet)),
-    );
+	let system = System::new_with_specifics(
+		RefreshKind::new()
+			.with_processes(ProcessRefreshKind::new().with_cmd(UpdateKind::OnlyIfNotSet)),
+	);
 
-    for process in system.processes().values() {
-        let Some(path) = process.cmd().first().map(Path::new) else {
-            continue;
-        };
+	for process in system.processes().values() {
+		let Some(path) = process.cmd().first().map(Path::new) else {
+			continue;
+		};
 
-        if path
-            .file_stem()
-            .map(OsStr::len)
-            .is_some_and(|len| len == 64 || len == 128) // MD5 or SHA-128
-        {
-            return true;
-        }
-    }
+		if path
+			.file_stem()
+			.map(OsStr::len)
+			.is_some_and(|len| len == 64 || len == 128) // MD5 or SHA-128
+		{
+			return true;
+		}
+	}
 
-    false
+	false
 }
 
 fn detect_wim_temperature() -> bool {
-    let Ok(library) = COMLibrary::new() else {
-        return false;
-    };
+	let Ok(library) = COMLibrary::new() else {
+		return false;
+	};
 
-    let Ok(connection) = WMIConnection::new(library) else {
-        return false;
-    };
+	let Ok(connection) = WMIConnection::new(library) else {
+		return false;
+	};
 
-    let Ok(results) = connection
-        .raw_query::<HashMap<String, Variant>>(obfstr!("SELECT * FROM Win32_CacheMemory"))
-    else {
-        return false;
-    };
+	let Ok(results) = connection
+		.raw_query::<HashMap<String, Variant>>(obfstr!("SELECT * FROM Win32_CacheMemory"))
+	else {
+		return false;
+	};
 
-    drop(connection);
+	drop(connection);
 
-    results.len() < 2
+	results.len() < 2
 }
 ```
 
-</br>
+<br />
 
 I might continue this if I feel like it...
 If I missed something, please tell me.
