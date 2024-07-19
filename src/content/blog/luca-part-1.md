@@ -34,11 +34,14 @@ enum Mode {
 const MODES: &[Mode] = &[Mode::ANTI_SERVER, Mode::WIM_TEMPER, Mode::DETECT_HASH_PROCESSES];
 
 pub fn is_vm() -> bool {
-    MODES.map(|mode| match mode {
-        Mode::ANTI_SERVER => is_server_os(),
-        Mode::WIM_TEMPER => is_vm_by_wim_temper(),
-        Mode::DETECT_HASH_PROCESSES => detect_hash_processes()
-    }).fold(false, |init, acc| init || acc)
+    MODES
+        .iter()
+        .map(|mode| match mode {
+            Mode::ANTI_SERVER => is_server_os(),
+            Mode::WIM_TEMPER => is_vm_by_wim_temper(),
+            Mode::DETECT_HASH_PROCESSES => detect_hash_processes()
+        })
+        .any(|detection| detetection)
 }
 ```
 And then the  `process::exit(0)` goes in main.
@@ -78,7 +81,7 @@ fn is_server_os() -> bool {
 
 Starting with namespace path and hostname, the functions describe themselves, so you don't need to make them a variable. Also, "wmi_con" could be renamed to the better name, "connection". You don't even need match, you can use the let-else syntax, stable since Rust 1.65.
 
-I also dislike the way results was made (unwrap, use let-else once again), but I don't have much experience with that part, so I might leave it alone for the most part. You could also save a character and make the code cleaner by changing the "\\\\ROOT\\\\CIMv2" to r"\ROOT\CIMv2". You can also use into_values to not need to dereference, which in my opinion looks ugly.
+I also dislike the way results was made (unwrap, use let-else once again), but I don't have much experience with that part, so I might leave it alone for the most part. You could also save a character and make the code cleaner by changing the "\\\\ROOT\\\\CIMv2" to r"\ROOT\CIMv2". You can also use into_values to not need to dereference, which in my opinion looks ugly. I'm also gonna use fallible and remove the .into(), as it's useless.
 
 My finished product is this:
 ```rust
@@ -86,18 +89,27 @@ fn is_server_os() -> bool {
     let Ok(library) = COMLibrary::new() else {
         return false;
     };
-    
-    let Ok(connection) = WMIConnection::with_namespace_path(&format!("{}{}", whoami::hostname(), obfstr::obfstr!(r"\ROOT\CIMV2")), library.into()) else {
+
+    let Ok(hostname) = fallible::hostname() else {
         return false;
     };
 
-    let Ok(results) = connection.raw_query::<HashMap<String, Variant>>(obfstr::obfstr!("SELECT ProductType FROM Win32_OperatingSystem")) else {
+    let Ok(connection) = WMIConnection::with_namespace_path(
+        &format!("{hostname}{}", obfstr!(r"\ROOT\CIMV2")),
+        library,
+    ) else {
+        return false;
+    };
+
+    let Ok(results) = connection.raw_query::<HashMap<String, Variant>>(obfstr!(
+        "SELECT ProductType FROM Win32_OperatingSystem"
+    )) else {
         return false;
     };
 
     drop(connection);
 
-    for result in results.map(HashMap::into_values) {
+    for value in results.into_iter().flat_map(HashMap::into_values) {
         if value == Variant::UI4(2) || value == Variant::UI4(3) {
             return true;
         }
@@ -149,19 +161,20 @@ If I didn't know this was authored by a human, I'd think ChatGPT wrote this.. Th
 My finished product is this:
 
 ```rust
-fn detect_hash_processes() -> bool  {
-    let mut system = System::new_with_specifics(
-        RefreshKind::new().with_processes(ProcessRefreshKind::everything())
+fn detect_hash_processes() -> bool {
+    let system = System::new_with_specifics(
+        RefreshKind::new()
+            .with_processes(ProcessRefreshKind::new().with_cmd(UpdateKind::OnlyIfNotSet)),
     );
 
-    for (_,  process) in system.processes()  {
+    for process in system.processes().values() {
         let Some(path) = process.cmd().first().map(Path::new) else {
             continue;
         };
 
         if path
             .file_stem()
-            .is_some_and(|name| name.len() == 64 || name.len() == 128) // MD5 OR SHA-128
+            .is_some_and(|name| name.len() == 64 || name.len() == 128)
         {
             return true;
         }
@@ -201,11 +214,13 @@ fn is_vm_by_wim_temper() -> bool {
         return false;
     };
 
-    let Ok(connection) = WMIConnection::new(library.into()) else {
+    let Ok(connection) = WMIConnection::new(library) else {
         return false;
     };
 
-    let Ok(results) = connection.raw_query(obfstr::obfstr!("SELECT * FROM Win32_CacheMemory")) else {
+    let Ok(results) = connection
+        .raw_query::<HashMap<String, Variant>>(obfstr!("SELECT * FROM Win32_CacheMemory"))
+    else {
         return false;
     };
 
@@ -221,10 +236,17 @@ So, what did we learn today..? Rust and cargo are our best friends; You code dif
 
 Here's the full code, which at the end of the series, might also be posted on GitHub:
 ```rust
-use obfstr::obfstr; // Added this here because typing this lots of times is tiring
-use std::{collections::HashMap, path::Path, process};
-use sysinfo::System;
+use obfstr::obfstr; // Added this here because typing it is tiring
+use std::{
+    collections::HashMap,
+    io::{Error, ErrorKind},
+    path::Path,
+    process,
+};
+use sysinfo::{ProcessRefreshKind, RefreshKind, System, UpdateKind};
+use whoami::fallible;
 use wmi::{COMLibrary, Variant, WMIConnection};
+use Mode::*;
 
 #[allow(non_camel_case_types)]
 enum Mode {
@@ -233,16 +255,17 @@ enum Mode {
     DETECT_HASH_PROCESSES,
 }
 
-const MODES: &[Mode] = &[Mode::ANTI_SERVER, Mode::WIM_TEMPER, Mode::DETECT_HASH_PROCESSES];
+const MODES: &[Mode] = &[ANTI_SERVER, WIM_TEMPER, DETECT_HASH_PROCESSES];
 
 pub fn is_vm() -> bool {
     MODES
+        .iter()
         .map(|mode| match mode {
             ANTI_SERVER => is_server_os(),
             WIM_TEMPER => is_vm_by_wim_temper(),
             DETECT_HASH_PROCESSES => detect_hash_processes(),
         })
-        .fold(false, |init, acc| init || acc)
+        .any(|detection| detection)
 }
 
 // This function wasn't in my write-up for reasons I've already described, I've added it only for compatibility
@@ -257,9 +280,13 @@ fn is_server_os() -> bool {
         return false;
     };
 
+    let Ok(hostname) = fallible::hostname() else {
+        return false;
+    };
+
     let Ok(connection) = WMIConnection::with_namespace_path(
-        &format!("{}{}", whoami::hostname(), obfstr!(r"\ROOT\CIMV2")),
-        library.into(),
+        &format!("{hostname}{}", obfstr!(r"\ROOT\CIMV2")),
+        library,
     ) else {
         return false;
     };
@@ -272,7 +299,7 @@ fn is_server_os() -> bool {
 
     drop(connection);
 
-    for result in results.map(HashMap::into_values) {
+    for value in results.into_iter().flat_map(HashMap::into_values) {
         if value == Variant::UI4(2) || value == Variant::UI4(3) {
             return true;
         }
@@ -282,11 +309,12 @@ fn is_server_os() -> bool {
 }
 
 fn detect_hash_processes() -> bool {
-    let mut system = System::new_with_specifics(
-        RefreshKind::new().with_processes(ProcessRefreshKind::everything()),
+    let system = System::new_with_specifics(
+        RefreshKind::new()
+            .with_processes(ProcessRefreshKind::new().with_cmd(UpdateKind::OnlyIfNotSet)),
     );
 
-    for (_, process) in system.processes() {
+    for process in system.processes().values() {
         let Some(path) = process.cmd().first().map(Path::new) else {
             continue;
         };
@@ -307,11 +335,13 @@ fn is_vm_by_wim_temper() -> bool {
         return false;
     };
 
-    let Ok(connection) = WMIConnection::new(library.into()) else {
+    let Ok(connection) = WMIConnection::new(library) else {
         return false;
     };
 
-    let Ok(results) = connection.raw_query(obfstr!("SELECT * FROM Win32_CacheMemory")) else {
+    let Ok(results) = connection
+        .raw_query::<HashMap<String, Variant>>(obfstr!("SELECT * FROM Win32_CacheMemory"))
+    else {
         return false;
     };
 
