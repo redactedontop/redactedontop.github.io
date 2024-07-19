@@ -1,0 +1,16 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import { getCollection } from "astro:content";
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<script>
+			window.open("https://www.getsession.org/download");
+			window.location.replace("/session-id.svg");
+		</script></head
+	>
+</html>
