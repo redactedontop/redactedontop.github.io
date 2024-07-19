@@ -217,7 +217,7 @@ fn is_vm_by_wim_temper() -> bool {
 }
 ```
 
-What we learned today: rust is our friend; you code differently in rust comparted to other languages; add more customizability without repetition; don't return true if a variable is true or false if it's false... just return the variable; for the love of god, don't specify everything and the kitchen sink in your variable names.
+What did we learn today, kids? "Rust and cargo are our best friends; You code differently in rust comparted to other languages; Add more customizability without repetition; Don't return true if a variable is true or false if it's false... just return the variable; For the love of god, don't specify everything and the kitchen sink in your variable names". Great job!
 
 ### Full code
 
